@@ -1,0 +1,85 @@
+---
+title: "Evolution of Soccer in the US (Milestone 3)"
+author: "Ángel Emilio Frías"
+format:
+  html:
+    embed-resources: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Project Overview
+
+Over the past four years, soccer in the United States—anchored primarily by Major League Soccer (MLS)—has entered an unprecedented era of growth and visibility. Catalyzed by high-profile international signings, major streaming partnerships (such as the Apple TV deal), and anticipation for the 2026 FIFA World Cup, soccer's footprint across North America is rapidly expanding.
+
+This project investigates the evolution of US soccer between 2021 and 2024. Key questions include:
+
+- How has average match attendance changed over the last four seasons?
+- To what extent have club valuations and commercial investments accelerated?
+- How have landmark player recruitments influenced fan engagement and game dynamics across the league?
+
+## Key Dataset Variables
+
+To understand and model this growth, our analysis focuses on several central variables:
+
+- **`season` / `year`**: The calendar year of competition (2021–2024), establishing the timeline across recent expansion cycles.
+- **`avg_attendance`**: The average number of spectators attending an MLS regular-season match.
+- **`club_valuation`**: The estimated market valuation of franchises (in millions of USD), reflecting commercial stability and investor confidence.
+- **`key_player_arrivals`**: Milestone marquee player acquisitions (e.g., designated players and world-class international stars) who drive ticket demand and viewership.
+- **`goals_per_game`**: The average number of goals scored per match, reflecting style of play, competitiveness, and on-field entertainment value.
+
+## Visualizing Growth Trends
+
+The chart below illustrates the trajectory of average match attendance across MLS regular-season games from 2021 to 2024.
+
+```{r}
+#| label: mls-attendance-trend
+#| fig-width: 8
+#| fig-height: 4.5
+
+library(ggplot2)
+library(tibble)
+library(scales)
+
+# Summary data for MLS regular season average attendance (2021-2024)
+mls_data <- tibble(
+  season = c(2021, 2022, 2023, 2024),
+  avg_attendance = c(15174, 21033, 22111, 23234)
+)
+
+# Plot trend over time
+ggplot(mls_data, aes(x = season, y = avg_attendance)) +
+  geom_line(color = "#1f77b4", linewidth = 1.2) +
+  geom_point(color = "#1f77b4", size = 3) +
+  geom_text(
+    aes(label = comma(avg_attendance)),
+    vjust = -1.2,
+    size = 3.5,
+    color = "#333333"
+  ) +
+  scale_x_continuous(breaks = 2021:2024) +
+  scale_y_continuous(
+    labels = comma,
+    limits = c(12000, 26000),
+    expand = expansion(mult = c(0.05, 0.1))
+  ) +
+  labs(
+    title = "MLS Regular Season Average Match Attendance (2021–2024)",
+    subtitle = "Steady recovery and expansion following pandemic restrictions, reaching league-record highs",
+    x = "Season",
+    y = "Average Match Attendance",
+    caption = "Source: MLS Official Match Reports & League Announcements"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(color = "gray30", margin = margin(b = 10)),
+    panel.grid.minor = element_blank()
+  )
+```
+
+## Chart Interpretation
+
+The visualization highlights steady and significant upward momentum in MLS match attendance over the last four years. Following pandemic-related capacity limits in 2021 (which averaged around 15,174 spectators per match), regular season attendance rebounded sharply in 2022 to over 21,000. In 2023 and 2024, growth continued to set league records—surpassing an average of 23,200 fans per game in 2024. This consistent rise reflects both stadium expansions in newer soccer-specific venues and the surging interest sparked by global talent arrivals and expanding fan culture.
