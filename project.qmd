@@ -1,85 +1,174 @@
 ---
-title: "Evolution of Soccer in the US (Milestone 3)"
-author: "Ángel Emilio Frías"
+title: "The Messi Effect: Transforming MLS Attendance & Ticket Dynamics"
+author: "Angel Emilio Frias"
 format:
   html:
-    embed-resources: true
+    theme: cosmo
+    toc: true
+    code-fold: true
 execute:
-  echo: true
+  echo: false
   warning: false
   message: false
 ---
 
-## Project Overview
+<style>
+:root {
+  --messi-pink: #e94378;
+  --messi-ink: #17223b;
+  --messi-muted: #607080;
+}
 
-Over the past four years, soccer in the United States—anchored primarily by Major League Soccer (MLS)—has entered an unprecedented era of growth and visibility. Catalyzed by high-profile international signings, major streaming partnerships (such as the Apple TV deal), and anticipation for the 2026 FIFA World Cup, soccer's footprint across North America is rapidly expanding.
+.lead {
+  color: var(--messi-muted);
+  font-size: 1.12rem;
+  max-width: 58rem;
+}
 
-This project investigates the evolution of US soccer between 2021 and 2024. Key questions include:
+.report-callout {
+  border-left: 4px solid var(--messi-pink);
+  background: #fff5f8;
+  padding: 1rem 1.2rem;
+  margin: 1.25rem 0;
+}
 
-- How has average match attendance changed over the last four seasons?
-- To what extent have club valuations and commercial investments accelerated?
-- How have landmark player recruitments influenced fan engagement and game dynamics across the league?
+h2, h3 {
+  color: var(--messi-ink);
+}
+</style>
 
-## Key Dataset Variables
+## Introduction
 
-To understand and model this growth, our analysis focuses on several central variables:
+<p class="lead">Lionel Messi's arrival at Inter Miami in 2023 became a highly visible demand shock for Major League Soccer: marquee road fixtures drew crowds far beyond the usual scale of several clubs, while resale listings and prices surged. This report separates documented event records from illustrative comparisons and treats the “Messi Effect” as a descriptive pattern—not proof that one player alone caused league-wide growth.</p>
 
-- **`season` / `year`**: The calendar year of competition (2021–2024), establishing the timeline across recent expansion cycles.
-- **`avg_attendance`**: The average number of spectators attending an MLS regular-season match.
-- **`club_valuation`**: The estimated market valuation of franchises (in millions of USD), reflecting commercial stability and investor confidence.
-- **`key_player_arrivals`**: Milestone marquee player acquisitions (e.g., designated players and world-class international stars) who drive ticket demand and viewership.
-- **`goals_per_game`**: The average number of goals scored per match, reflecting style of play, competitiveness, and on-field entertainment value.
+MLS reported that the 2024 regular season passed **11 million fans**, setting a new all-time attendance record with matches still to play. The league also exceeded 10 million regular-season attendees for a third consecutive year. That growth reflects multiple forces—including star players, club promotion, and matchday experiences—so the league total should not be attributed to Messi alone.
 
-## Visualizing Growth Trends
+::: {.report-callout}
+**At a glance:** Messi's 2024 visits helped generate extraordinary road crowds at Arrowhead, Soldier Field, and Gillette Stadium. Those one-off events illustrate the scale of demand; they are not representative of typical MLS attendance or ticket prices.
+:::
 
-The chart below illustrates the trajectory of average match attendance across MLS regular-season games from 2021 to 2024.
+## Stadium Attendance Boom (Venue Shifts to NFL Stadiums)
+
+MLS clubs have occasionally moved high-demand games to larger venues. Sporting Kansas City normally plays at Children's Mercy Park, a soccer-specific stadium with room for roughly **18,000** spectators. For Inter Miami's April 13, 2024 visit, the club moved the match to Arrowhead Stadium; **72,610** attended. The crowd was a Sporting KC home record and one of the largest standalone crowds in league history.
+
+Chicago Fire welcomed **more than 62,000** to Soldier Field for Inter Miami's August 31, 2024 visit. Reports have described the match as generating **over half of the Fire's annual gate revenue**. That share should be read as a reported estimate rather than an audited, publicly itemized revenue figure; it nevertheless conveys how unusually concentrated event-day demand can be.
+
+New England's April 27, 2024 match against Inter Miami drew **65,612** to Gillette Stadium, breaking the Revolution's home attendance record. Together, these cases show how a marquee fixture can justify a move into a much larger NFL venue—and how crowd size can change the economics of a single matchday.
+
+The league record is part of a broader attendance story. MLS's 2024 announcement put the season beyond **11 million regular-season fans**, surpassing the previous 2023 record of 10,900,804. League-wide totals are a stronger measure of the sport's reach than any single Messi fixture, but do not by themselves identify which factors produced the growth.
+
+## Ticket Pricing & Secondary Market Surge
+
+Demand also appeared in resale markets. A 2023 Reuters report described secondary-market ticket prices for some Inter Miami away fixtures rising by several hundred percent; one reported comparison reached **1,034%** after Messi's move was announced. Across reports, quoted spikes have been described in the **400%–1,000%** range. These are market-specific resale comparisons—not league-wide averages, face-value increases, or like-for-like estimates for every seat.
+
+The distinction matters: an asking price on a resale platform is not necessarily a completed sale, and a percentage change can look dramatic when the starting price is low. Pricing also varies with venue capacity, opponent, date, seat location, and whether Messi is expected to play.
+
+### Explore the comparison
+
+Hover over a bar to see its attendance, average ticket-price input, and change against the regular-match benchmark. The chart is designed to make the comparison easy to explore; it is **not a historical ticket-price dataset**. The regular-match benchmarks and ticket prices are illustrative scenario inputs, while the labels identify several widely reported Messi-event crowds. The Rose Bowl value is a marquee-match scenario, not a Messi or Inter Miami appearance.
 
 ```{r}
-#| label: mls-attendance-trend
-#| fig-width: 8
-#| fig-height: 4.5
-
-library(ggplot2)
-library(tibble)
+library(tidyverse)
+library(plotly)
 library(scales)
 
-# Summary data for MLS regular season average attendance (2021-2024)
-mls_data <- tibble(
-  season = c(2021, 2022, 2023, 2024),
-  avg_attendance = c(15174, 21033, 22111, 23234)
-)
+comparison_data <- tribble(
+  ~Stadium, ~match_type, ~Attendance, ~avg_ticket_price,
+  "Arrowhead Stadium\nSporting Kansas City", "Regular MLS Match", 18000, 45,
+  "Arrowhead Stadium\nSporting Kansas City", "Messi / Inter Miami", 72610, 350,
+  "Soldier Field\nChicago Fire", "Regular MLS Match", 22000, 42,
+  "Soldier Field\nChicago Fire", "Messi / Inter Miami", 62124, 290,
+  "Gillette Stadium\nNew England Revolution", "Regular MLS Match", 23940, 40,
+  "Gillette Stadium\nNew England Revolution", "Messi / Inter Miami", 65612, 310,
+  "Mercedes-Benz Stadium\nAtlanta United", "Regular MLS Match", 44000, 38,
+  "Mercedes-Benz Stadium\nAtlanta United", "Messi / Inter Miami", 71635, 250,
+  "Rose Bowl\nLA Galaxy", "Regular MLS Match", 25000, 45,
+  "Rose Bowl\nLA Galaxy", "Messi / Inter Miami", 70076, 320,
+  "Chase Stadium\nInter Miami", "Regular MLS Match", 18500, 65,
+  "Chase Stadium\nInter Miami", "Messi / Inter Miami", 20500, 120
+) |>
+  rename(
+    `Match Type` = match_type,
+    `Avg Ticket Price (USD)` = avg_ticket_price
+  ) |>
+  group_by(Stadium) |>
+  mutate(
+    attendance_change = Attendance[`Match Type` == "Messi / Inter Miami"] /
+      Attendance[`Match Type` == "Regular MLS Match"] - 1,
+    price_change = `Avg Ticket Price (USD)`[`Match Type` == "Messi / Inter Miami"] /
+      `Avg Ticket Price (USD)`[`Match Type` == "Regular MLS Match"] - 1,
+    hover = paste0(
+      "<b>", Stadium, "</b><br>",
+      "Match type: ", `Match Type`, "<br>",
+      "Attendance: ", scales::comma(Attendance), "<br>",
+      "Avg ticket price: ", scales::dollar(`Avg Ticket Price (USD)`), "<br>",
+      "Attendance change vs regular benchmark: +",
+      scales::percent(attendance_change, accuracy = 1), "<br>",
+      "Ticket-price change vs regular benchmark: +",
+      scales::percent(price_change, accuracy = 1)
+    )
+  ) |>
+  ungroup()
 
-# Plot trend over time
-ggplot(mls_data, aes(x = season, y = avg_attendance)) +
-  geom_line(color = "#1f77b4", linewidth = 1.2) +
-  geom_point(color = "#1f77b4", size = 3) +
-  geom_text(
-    aes(label = comma(avg_attendance)),
-    vjust = -1.2,
-    size = 3.5,
-    color = "#333333"
+attendance_plot <- ggplot(
+  comparison_data,
+  aes(
+    x = Stadium,
+    y = Attendance,
+    fill = `Match Type`,
+    text = hover
+  )
+) +
+  geom_col(position = position_dodge(width = 0.78), width = 0.68) +
+  coord_flip() +
+  scale_fill_manual(
+    values = c(
+      "Regular MLS Match" = "#17223b",
+      "Messi / Inter Miami" = "#e94378"
+    )
   ) +
-  scale_x_continuous(breaks = 2021:2024) +
-  scale_y_continuous(
-    labels = comma,
-    limits = c(12000, 26000),
-    expand = expansion(mult = c(0.05, 0.1))
-  ) +
+  scale_y_continuous(labels = scales::label_comma()) +
   labs(
-    title = "MLS Regular Season Average Match Attendance (2021–2024)",
-    subtitle = "Steady recovery and expansion following pandemic restrictions, reaching league-record highs",
-    x = "Season",
-    y = "Average Match Attendance",
-    caption = "Source: MLS Official Match Reports & League Announcements"
+    title = "A marquee-match attendance premium",
+    subtitle = "Hover for the attendance and illustrative ticket-price comparisons",
+    x = NULL,
+    y = "Attendance",
+    fill = NULL,
+    caption = "Scenario comparison; not a matched sample. Ticket prices and regular-match baselines are illustrative."
   ) +
   theme_minimal(base_size = 12) +
   theme(
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(color = "gray30", margin = margin(b = 10)),
-    panel.grid.minor = element_blank()
+    plot.title = element_text(face = "bold", color = "#17223b"),
+    plot.subtitle = element_text(color = "#607080"),
+    plot.caption = element_text(color = "#607080", hjust = 0),
+    axis.text.y = element_text(color = "#17223b", size = 9),
+    axis.text.x = element_text(color = "#607080"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.y = element_blank(),
+    legend.position = "top"
+  )
+
+plotly::ggplotly(attendance_plot, tooltip = "text") |>
+  plotly::layout(
+    hoverlabel = list(bgcolor = "white", font = list(color = "#17223b")),
+    margin = list(l = 12, r = 18, t = 70, b = 55)
   )
 ```
 
-## Chart Interpretation
+In the chart, event crowds at Arrowhead, Soldier Field, and Gillette are reported match attendances. Other event and regular-match values are included to make a six-venue scenario comparison; the ticket-price inputs are illustrative throughout. In particular, the Rose Bowl has not hosted a Messi / Inter Miami MLS fixture in this comparison. The modeled values should not be used to estimate actual ticket prices or infer a causal Messi premium.
 
-The visualization highlights steady and significant upward momentum in MLS match attendance over the last four years. Following pandemic-related capacity limits in 2021 (which averaged around 15,174 spectators per match), regular season attendance rebounded sharply in 2022 to over 21,000. In 2023 and 2024, growth continued to set league records—surpassing an average of 23,200 fans per game in 2024. This consistent rise reflects both stadium expansions in newer soccer-specific venues and the surging interest sparked by global talent arrivals and expanding fan culture.
+## Cultural Impact
+
+Messi's signing expanded MLS's global visibility and made some regular-season fixtures feel like destination events. Record crowds, international attention, and the willingness to relocate matches to larger stadiums all point to a cultural and commercial moment for the league. At the same time, a matchday surge is not the same as durable local support: repeat attendance, season-ticket retention, and sustained investment are better tests of long-run impact.
+
+The clearest conclusion is therefore a measured one. Messi's presence coincided with extraordinary attendance and resale-market attention at selected matches, while MLS also set a league-wide attendance record. The available examples support a strong **event-level effect**; they do not isolate Messi's contribution from scheduling, opponents, venue capacity, team performance, or the league's wider growth.
+
+## Sources and interpretation
+
+- [MLS: 2024 regular-season attendance record](https://www.mlssoccer.com/news/mls-sets-all-time-record-for-regular-season-attendance) — more than 11 million fans; comparison with the 2023 total.
+- [MLS: Arrowhead crowd and Sporting KC match](https://www.mlssoccer.com/news/historic-crowd-72k-attend-sporting-kc-vs-inter-miami-at-arrowhead-stadium) — attendance of 72,610 and the venue move from Children's Mercy Park.
+- [MLS: Gillette Stadium attendance record](https://www.mlssoccer.com/news/new-england-revolution-set-attendance-record-as-lionel-messi-visits-gillette-stadium) — attendance of 65,612.
+- [MLS match record: Chicago Fire vs. Inter Miami, August 31, 2024](https://www.mlssoccer.com/competitions/mls-regular-season/2024/matches/chivsmi-08-31-2024/) — match reference for the Soldier Field case.
+- [Reuters: ticket prices after Messi's move to Inter Miami](https://www.reuters.com/sports/soccer/messis-move-inter-miami-sends-ticket-prices-soaring-1034-2023-06-07/) — reported secondary-market increase; resale listings are not the same as face-value prices or completed sales.
+
+Attendance records are reported match totals. Revenue-share and resale-price statements are reported estimates, not audited league-wide measures. The interactive chart is explicitly illustrative and should not be read as additional historical evidence.
